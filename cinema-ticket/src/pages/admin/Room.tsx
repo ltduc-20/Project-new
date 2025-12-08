@@ -19,7 +19,7 @@ function Room() {
     }
    async function DelectRoom(id:number){
         const confirmed = window.confirm('Bạn có chắc muốn xóa phòng này?');
-        const{error} =  await supabase.from('rooms').delete().eq('id', id) 
+        const{error} = confirmed? await supabase.from('rooms').delete().eq('id', id) : {error: null};
         if (error) {
             alert('Lỗi khi xóa phòng: ' + error.message);
         } else {
@@ -83,13 +83,16 @@ function Room() {
                     <Modal.Title>Thêm Phòng</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-            <form >
+            <form onSubmit={(e) => {
+                e.preventDefault();
+                AddRoom();
+            }}>
                 <div className="mt-3">
                     <label className='form-label'>Tên Phòng</label>
                     <input type="text" className="form-control" value={newRoomName} onChange={(e) => setNewRoomName(e.target.value)} placeholder="Nhập tên phòng..." />
                 </div>
                 <div className="mt-6">
-                    <button type="button" className="btn btn-primary mt-3" onClick={AddRoom}>Add Room</button>
+                    <button type="submit" className="btn btn-primary mt-3">Add Room</button>
                 </div>
             </form>
             </Modal.Body>
