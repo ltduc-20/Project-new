@@ -39,10 +39,9 @@ function AdminLayout() {
     </div>
   </div>
 </nav>
-<main id="container">
-        <Outlet />
-        
-    </main>
+  <div className="container">
+            <Outlet></Outlet>
+        </div>
   </>
 }
 export default AdminLayout;
