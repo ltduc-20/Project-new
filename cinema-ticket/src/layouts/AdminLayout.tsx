@@ -1,7 +1,22 @@
-
-import { Outlet, NavLink } from 'react-router-dom';
+import { use, useEffect } from 'react';
+import { Outlet, NavLink,useNavigate } from 'react-router-dom';
+import { supabase } from '../utils/apputils';
 
 function AdminLayout() {
+  const navigate=useNavigate();
+  useEffect(() => {
+    (async () => {
+      const res=await supabase.auth.getSession();
+      if(res.data.session)
+      {
+       console.log(('da dang nhap'));
+      }
+      else{
+
+       navigate('/login');
+      }
+    })();
+  }, [])
   return <>
   <nav className="navbar navbar-expand-lg bg-body-tertiary">
   <div className="container-fluid">
