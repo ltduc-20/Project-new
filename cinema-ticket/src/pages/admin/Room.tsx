@@ -16,17 +16,15 @@ function Room() {
     if (roomId === null) setNewRoomName("");
     setShow(true);
   }
-  function upsertRoom()
-  {
-let res;
-if(RoomID===0)
-{
-    res= supabase.from("rooms").insert({ room_name: newRoomName });
-    
-}
-else{
-    res= supabase.from("rooms").upsert({ room_name: newRoomName, id:RoomID });
-}
+  function upsertRoom() {
+    let res;
+    if (RoomID === 0) {
+      res = supabase.from("rooms").insert({ room_name: newRoomName });
+    } else {
+      res = supabase
+        .from("rooms")
+        .upsert({ room_name: newRoomName, id: RoomID });
+    }
   }
   async function loadRooms() {
     const { data, error } = await supabase.from("rooms").select("*");
@@ -100,49 +98,45 @@ else{
   async function addIdtoCheckeIds(id: number) {
     if (checkeIds) {
       setCheckeIds([...checkeIds, id]);
-      
     } else {
       setCheckeIds([id]);
     }
   }
   function removeIdfromCheckeIds(id: number) {
     const idx = checkeIds?.indexOf(id);
-    if(!checkeIds) return;
-   if( idx !== undefined && idx >=0){
-    setCheckeIds([...checkeIds!.slice(0, idx), ...checkeIds!.slice(idx+1)]);
-   }
+    if (!checkeIds) return;
+    if (idx !== undefined && idx >= 0) {
+      setCheckeIds([...checkeIds!.slice(0, idx), ...checkeIds!.slice(idx + 1)]);
+    }
   }
   function handleCheck(ischecked: boolean, id: number) {
-    if (ischecked) {    
-        addIdtoCheckeIds(id);
+    if (ischecked) {
+      addIdtoCheckeIds(id);
+    } else {
+      removeIdfromCheckeIds(id);
     }
-    else{
-        removeIdfromCheckeIds(id);
-    }  
-}
-async function Delete()
-{
-    if(!checkeIds || checkeIds.length ===0){
-        alert("Vui lòng chọn ít nhất một phòng để xóa");
-        return;
+  }
+  async function Delete() {
+    if (!checkeIds || checkeIds.length === 0) {
+      alert("Vui lòng chọn ít nhất một phòng để xóa");
+      return;
     }
-    const res=await supabase.from("rooms").delete().in("id", checkeIds);
-    if(!confirm(`xac nhan xoa nhung phong da chon ${checkeIds.length}`) ){
-        return;
+    const res = await supabase.from("rooms").delete().in("id", checkeIds);
+    if (!confirm(`xac nhan xoa nhung phong da chon ${checkeIds.length}`)) {
+      return;
     }
-    if(res.error){
-        alert("Lỗi khi xóa phòng: " + res.error.message);
+    if (res.error) {
+      alert("Lỗi khi xóa phòng: " + res.error.message);
+    } else {
+      alert("Xóa phòng thành công");
+      await loadRooms();
     }
-    else{
-        alert("Xóa phòng thành công");
-        await loadRooms();
-    }
-}
-function isAuthenticated() {
+  }
+  function isAuthenticated() {
     const user = supabase.auth.getUser();
     return user !== null;
   }
-  
+
   useEffect(() => {
     loadRooms();
   }, []);
@@ -156,7 +150,9 @@ function isAuthenticated() {
         >
           Thêm Phòng
         </button>
-        <button className="btn btn-outline-danger" onClick={Delete}>Delete All</button>
+        <button className="btn btn-outline-danger" onClick={Delete}>
+          Delete All
+        </button>
       </div>
       <table className="table table-bordered ">
         <thead>
@@ -174,7 +170,12 @@ function isAuthenticated() {
           {rooms.map((room) => (
             <tr key={room.id}>
               <td>
-                <input type="checkbox" onChange={(ev)=>handleCheck(ev.currentTarget.checked, room.id)} />
+                <input
+                  type="checkbox"
+                  onChange={(ev) =>
+                    handleCheck(ev.currentTarget.checked, room.id)
+                  }
+                />
               </td>
               <td>{room.id}</td>
               <td>{room.room_name}</td>
