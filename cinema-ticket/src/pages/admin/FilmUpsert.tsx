@@ -1,22 +1,53 @@
-import { useState, type FormEvent } from "react";
+import { use, useRef, useState, type FormEvent } from "react";
 import type { film as FilmType } from "../../types/film";
 import { supabase } from "../../utils/apputils";
 import SelectGenre from "../../components/SelectGenre";
 import SelectRating from "../../components/SelectRating";
+import { useNavigate } from "react-router-dom";
+
 function FilmUpsert() {
   const [film_Name, setfilm_Name] = useState<string>("");
   const [direcTor, setDirector] = useState<string>("");
-  const [thumbnail_Url, setthumbnail_Url] = useState<string>("");
-  const [trailer_url, setTrailer_url] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [genre_Id, setGenre_id] = useState<number >();
   const [rating_Id, setRating_id] = useState<number >();
   const [release_date, setRelease_date] = useState<string>("");
   const [is_showing, setIs_showing] = useState<boolean>(false);
-
-  async function handleSubmit(ev: FormEvent<HTMLFormElement>) {
+  const thumbnailRef = useRef<HTMLInputElement>(null);
+  const trailerRef= useRef<HTMLInputElement>(null);
+  const nagigate=useNavigate();
+  async function handleSubmit(ev: React.FormEvent<HTMLFormElement>) {
     ev.preventDefault();
+    //upload hinh anh len supabase stogre
+    let thumbnail_Url='';
+    let trailer_url = '';
+   const thumbnails = thumbnailRef.current?.files;
+   if(thumbnails && thumbnails.length > 0)
+   {
+    const file = thumbnails[0];
+    const res = await supabase.storage
+    .from('cinema-ticket')
+    .upload(`thumbnails/${Date.now()}-${file.name}`,file);
+    if(res.data)
+    {
+      const url= supabase.storage.from('cinema-ticket').getPublicUrl(res.data.path)
+      thumbnail_Url = url.data.publicUrl;
+    }
     
+   }
+   const trailers= trailerRef.current?.files;
+  if(trailers && trailers.length > 0)
+  {
+    const file = trailers[0];
+  const res = await supabase.storage
+  .from('cinema-ticket')
+  .upload(`trailers/${Date.now()}-${file.name}`,file);
+  if(res.data)
+  {
+    const urls= supabase.storage.from('cinema-ticket').getPublicUrl(res.data.path);
+    trailer_url = urls.data.publicUrl;
+  }
+}
     const payload: FilmType = {
       film_name: film_Name,
       director: direcTor,
@@ -34,7 +65,7 @@ function FilmUpsert() {
         alert("Error inserting film: "+res.error.message);
       }
       else{
-        alert("Film inserted successfully");
+        nagigate("/admin/film");
       }
   }
 
@@ -51,11 +82,11 @@ function FilmUpsert() {
     </div>
   <div className="mt-3">
     <label htmlFor="" className="form-label">thumbnail_url</label>
-    <input onChange={(ev)=>setthumbnail_Url(ev.target.value)} type="text" className="form-control" />
+    <input ref={thumbnailRef} type="file" className="form-control" />
     </div>
   <div className="mt-3">
     <label htmlFor="" className="form-label">trailer_url</label>
-    <input onChange={(ev)=>setTrailer_url(ev.target.value)} type="text" className="form-control" />
+    <input ref={trailerRef} type="file" className="form-control" />
     </div>
   <div className="mt-3">
     <label htmlFor="" className="form-label">description</label>
@@ -63,7 +94,7 @@ function FilmUpsert() {
     </div>
   <div className="mt-3">
     <label htmlFor="" className="form-label">genre_id</label>
-    <SelectGenre onChange={(id)=> setGenre_id(id)}/>
+    <SelectGenre onChange={(id)=>setGenre_id(id)}/>
     </div>
   <div className="mt-3">
     <label htmlFor="" className="form-label">rating_id</label>

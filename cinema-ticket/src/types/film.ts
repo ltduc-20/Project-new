@@ -9,3 +9,13 @@ export type film = {
   release_date?: string;
   is_showing?: boolean;
 };
+export type FilmList = {
+ id:string;
+ film_name: string; 
+  thumbnail_url?: string;
+  mst_film_genres?: { genre_name?: string};
+  mst_film_ratings?: {
+    rating_name?: string;
+  };
+  release_date?: string;
+};
